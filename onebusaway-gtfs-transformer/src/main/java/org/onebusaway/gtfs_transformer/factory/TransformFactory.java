@@ -305,7 +305,6 @@ public class TransformFactory {
           String baseUrl = "https://raw.github.com/wiki/camsys/onebusaway-application-modules";
 
           handleTransformOperation(line, json, new RemoveMergedTripsStrategy());
-          handleTransformOperation(line, json, new RemoveRepeatedStopTimesStrategy());
           handleTransformOperation(line, json, new RemoveEmptyBlockTripsStrategy());
           handleTransformOperation(line, json, new EnsureStopTimesIncreaseUpdateStrategy());
 
