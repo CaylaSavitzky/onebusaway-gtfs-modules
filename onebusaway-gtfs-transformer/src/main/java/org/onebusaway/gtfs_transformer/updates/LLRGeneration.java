@@ -133,7 +133,7 @@ public class LLRGeneration implements GtfsTransformStrategy {
 //    reading methods
 
     public List<Trip> readHastusFiles(String files,
-                                 GtfsMutableRelationalDao dao, String agency, Map<String,Stop> stopMappings){
+                                      GtfsMutableRelationalDao dao, String agency, Map<String,Stop> stopMappings){
         List<Trip> trips = new ArrayList<Trip>();
         for (String file: files.split(";")) {
             readHastusFile(file,dao,agency,stopMappings).stream().forEach(x->trips.add(x));
@@ -142,12 +142,12 @@ public class LLRGeneration implements GtfsTransformStrategy {
     }
 
     public List<Trip> readHastusFile(String file,
-                                      GtfsMutableRelationalDao dao, String agency, Map<String,Stop> stopMappings){
-            HastusListener listener = new HastusListener();
-            listener.setNumericalStopMappings(stopMappings);
-            listener.setGtfsRouteId(gtfsRouteIdInput);
-            read(file, listener, dao, agency);
-            return listener.getTrips();
+                                     GtfsMutableRelationalDao dao, String agency, Map<String,Stop> stopMappings){
+        HastusListener listener = new HastusListener();
+        listener.setNumericalStopMappings(stopMappings);
+        listener.setGtfsRouteId(gtfsRouteIdInput);
+        read(file, listener, dao, agency);
+        return listener.getTrips();
     }
 
     public HashMap<String, Stop> readStops(String file,
@@ -193,6 +193,20 @@ public class LLRGeneration implements GtfsTransformStrategy {
         Map<String,Stop> numericalStopMappings;
         Map<String,List<Stop>> nameStopMappings = new HashMap<>();
         String gtfsRouteId;
+
+        @Override
+        public void setDao(GtfsMutableRelationalDao dao){
+            this.dao = dao;
+            Collection<Stop> stops = dao.getAllStops();
+            for(Stop stop : stops){
+                List<Stop> stopsForName = nameStopMappings.get(stop.getName());
+                if(stopsForName==null){
+                    stopsForName= new ArrayList<>();
+                    nameStopMappings.put(stop.getName(),stopsForName);
+                }
+                stopsForName.add(stop);
+            }
+        }
 
         public void setNumericalStopMappings(Map<String,Stop> numericalStopMappings){
             this.numericalStopMappings = numericalStopMappings;
@@ -290,11 +304,21 @@ public class LLRGeneration implements GtfsTransformStrategy {
             int time = StopTimeFieldMappingFactory.getStringAsSeconds(data.time+":00");
             stopTime.setArrivalTime(time);
             stopTime.setDepartureTime(time);
-            if(numericalStopMappings.get(data.hastusStop)==null){
-                _log.info("This stop didn't have a match in stop_to_stop_csv: " + data.hastusStop +
-                        " so we're skipping this stoptime " + stopTime.toString());
-                return;}
+            String hastusStop = data.hastusStop;
+            if (hastusStop.matches("-?\\d+")){
+                if(numericalStopMappings.get(data.hastusStop)==null){
+                    _log.info("This stop didn't have a match in stop_to_stop_csv: " + data.hastusStop +
+                            " so we're skipping this stoptime " + stopTime.toString());
+                    return;}
                 stopTime.setStop(numericalStopMappings.get(data.hastusStop));
+            } else{
+                List<Stop> stopsForName = nameStopMappings.get(hastusStop);
+                if(stopsForName==null){
+                    _log.info("This stop didn't have a match in stop_to_stop_csv: " + data.hastusStop +
+                            " so we're skipping this stoptime " + stopTime.toString());
+                    return;}
+                stopTime.setStop(stopsForName.get(0));
+            }
 
             dao.saveEntity(stopTime);
         }
@@ -314,18 +338,22 @@ public class LLRGeneration implements GtfsTransformStrategy {
             int tripInt;
 
             HastusData(List<String>list) throws IOException{
-                list = parse(list.get(0));
+                if(list.size()!=7) {
+                    list = parse(list.get(0));
+                }
                 if(list.size()<7 | list.get(1)==null | list.get(1).equals("")){
                     return;
                 }
                 serviceId = new AgencyAndId(agency,"LLR"+list.get(0));
-                route = list.get(1);
+                route = list.get(1).trim();
                 route=route.substring(1);
                 runNumber = Integer.valueOf(list.get(3).replace("599 -","").trim());
                 tripName = list.get(2);
                 tripInt = Integer.parseInt(list.get(2));
                 time = list.get(4);
                 hastusStop = list.get(5);
+                if(hastusStop.equals("Tukwila Int�l Blvd Station"))
+                    hastusStop="Tukwila Int'l Blvd Station";
                 dir = resolveDirection(list.get(6));
                 blockId = getBlockId();
                 tripId = new AgencyAndId(agency,serviceId.getId()+tripName);
@@ -367,9 +395,13 @@ public class LLRGeneration implements GtfsTransformStrategy {
         @Override
         public void handleLine(List<String> list) throws IOException{
 
-            AgencyAndId[] stopIds = list.subList(1,list.size()).stream()
-                    .map(s -> handleStopMatch(s).getId())
-                    .collect(Collectors.toList()).toArray(new AgencyAndId[list.size()-1]);
+            int i = 0;
+            list = list.stream().filter(s->!s.equals("")).collect(Collectors.toList());
+            if(list.size()==0)
+                return;
+            AgencyAndId[] stopIds = list.subList(1,list.size()).stream().map
+                    (s -> handleStopMatch(s).getId()).collect(Collectors.toList()).
+                            toArray(new AgencyAndId[list.size()-1]);
             StopOrderPattern stopOrderPattern = new StopOrderPattern(stopIds);
             AgencyAndId shapeId = new AgencyAndId("40",list.get(0));
             dao.getShapePointsForShapeId(shapeId);

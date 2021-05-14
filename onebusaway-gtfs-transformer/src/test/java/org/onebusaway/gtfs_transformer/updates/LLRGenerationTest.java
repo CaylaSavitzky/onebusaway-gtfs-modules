@@ -102,9 +102,9 @@ public class LLRGenerationTest extends AbstractTestSupport {
     }
 
     @Test
-    public void testReadHastus() throws IOException {
+    public void testReadHastusA() throws IOException {
         String stopToStopPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/stop_to_stop_mapping.csv";
-        String hastusPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/misordered_hastus_sample.ssv";
+        String hastusPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/misordered_hastus_sample_A.ssv";
         LLRGeneration _strategy = new LLRGeneration();
         mockGtfsSetup();
         String agency = "40";
@@ -121,7 +121,31 @@ public class LLRGenerationTest extends AbstractTestSupport {
         List<Trip> tripsForBlock = dao.getTripsForBlockId(new AgencyAndId(agency,Integer.toString(block.getId())));
         assertEquals(3,tripsForBlock.size());
         String s = tripsForBlock.get(1).getId().toString();
-        assertEquals(agency+"_WeekdayDecReduced1005",tripsForBlock.get(1).getId().toString());
+        assertEquals(agency+"_LLRWeekdayDecReduced1008",tripsForBlock.get(1).getId().toString());
+    }
+
+
+    @Test
+    public void testReadHastusB() throws IOException {
+        String stopToStopPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/stop_to_stop_mapping.csv";
+        String hastusPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/misordered_hastus_sample_A.ssv";
+        LLRGeneration _strategy = new LLRGeneration();
+        mockGtfsSetup();
+        String agency = "40";
+        GtfsMutableRelationalDao dao = _gtfs.read();
+
+        HashMap<String, Stop> stopMap = _strategy.readStops(stopToStopPath,dao,agency);
+        List<Trip> trips = _strategy.readHastusFiles(hastusPath,dao,agency,stopMap);
+        assertEquals(6,trips.size());
+        Collection<StopTime> stopTimes = dao.getAllStopTimes();
+        assertEquals(18,stopTimes.size());
+        Collection<Block> blocks = dao.getAllBlocks();
+        assertEquals(2,blocks.size());
+        Block block = blocks.iterator().next();
+        List<Trip> tripsForBlock = dao.getTripsForBlockId(new AgencyAndId(agency,Integer.toString(block.getId())));
+        assertEquals(3,tripsForBlock.size());
+        String s = tripsForBlock.get(1).getId().toString();
+        assertEquals(agency+"_LLRWeekdayDecReduced1008",tripsForBlock.get(1).getId().toString());
     }
 
 
@@ -129,7 +153,7 @@ public class LLRGenerationTest extends AbstractTestSupport {
     public void testFixStopSeqHeadsignShapeBlockSeq() throws IOException {
         String stopToStopPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/stop_to_stop_mapping.csv";
         String stopOrderShapesPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/stoptimes_to_shape.csv";
-        String hastusPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/misordered_hastus_sample.ssv";
+        String hastusPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/misordered_hastus_sample_A.ssv";
         LLRGeneration _strategy = new LLRGeneration();
         mockGtfsSetup();
         String agency = "40";
