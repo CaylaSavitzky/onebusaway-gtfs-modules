@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 import org.onebusaway.csv_entities.CSVLibrary;
 import org.onebusaway.csv_entities.schema.annotations.CsvField;
 import org.onebusaway.gtfs.model.*;
-import org.onebusaway.gtfs.model.calendar.ServiceDate;
-import org.onebusaway.gtfs.serialization.mappings.StopTimeFieldMappingFactory;
 import org.onebusaway.gtfs.services.GtfsMutableRelationalDao;
 import org.onebusaway.gtfs_transformer.collections.StopOrderPattern;
 import org.onebusaway.gtfs_transformer.csv.DaoInterfacingListener;
@@ -110,15 +108,8 @@ public class LLRGeneration implements GtfsTransformStrategy {
 
 
 //
-//
-//
 //     Managing External Files
 //
-//
-//
-//
-
-
 
 //    Assigning file names
 
@@ -147,19 +138,14 @@ public class LLRGeneration implements GtfsTransformStrategy {
                                       GtfsMutableRelationalDao dao, String agency, Map<String,Stop> stopMappings){
         List<Trip> trips = new ArrayList<Trip>();
         for (String file: files.split(";")) {
-            readHastusFile(file,dao,agency,stopMappings).stream().forEach(x->trips.add(x));
+            HastusListener listener = new HastusListener();
+            listener.setNoServiceMarker(noServiceMarker);
+            listener.setNumericalStopMappings(stopMappings);
+            listener.setGtfsRouteId(gtfsRouteIdInput);
+            read(file, listener, dao, agency);
+            listener.getTrips().stream().forEach(x->trips.add(x));
         }
         return trips;
-    }
-
-    public List<Trip> readHastusFile(String file,
-                                     GtfsMutableRelationalDao dao, String agency, Map<String,Stop> stopMappings){
-        HastusListener listener = new HastusListener();
-        listener.setNoServiceMarker(noServiceMarker);
-        listener.setNumericalStopMappings(stopMappings);
-        listener.setGtfsRouteId(gtfsRouteIdInput);
-        read(file, listener, dao, agency);
-        return listener.getTrips();
     }
 
     public HashMap<String, Stop> readStops(String file,
@@ -175,6 +161,7 @@ public class LLRGeneration implements GtfsTransformStrategy {
         read(file,listener,dao,agency);
         return listener.getMap();
     }
+
 
     public void read(String file, DaoInterfacingListener listener, GtfsMutableRelationalDao dao, String agency){
         if (agency==null){
@@ -192,7 +179,6 @@ public class LLRGeneration implements GtfsTransformStrategy {
             _log.error("When working with " + listener.getClass().toString() + " caught  " + e.getMessage());
         }
     }
-
 
 //  Support Listeners
 
