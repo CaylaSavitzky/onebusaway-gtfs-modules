@@ -17,15 +17,14 @@ package org.onebusaway.gtfs_transformer.updates;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.IntStream;
 
 import org.junit.Test;
-import org.onebusaway.gtfs.impl.GtfsRelationalDaoImpl;
 import org.onebusaway.gtfs.model.*;
 import org.onebusaway.gtfs.serialization.mappings.StopTimeFieldMappingFactory;
 import org.onebusaway.gtfs.services.GtfsMutableRelationalDao;
 import org.onebusaway.gtfs.services.GtfsRelationalDao;
 import org.onebusaway.gtfs_transformer.AbstractTestSupport;
+import org.onebusaway.gtfs_transformer.collections.StopOrderPattern;
 
 import static org.junit.Assert.*;
 
