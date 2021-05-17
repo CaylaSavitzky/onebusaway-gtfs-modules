@@ -60,6 +60,9 @@ public class LLRGeneration implements GtfsTransformStrategy {
     @CsvField(optional = true)
     private String gtfsRouteIdInput = "100479";
 
+    @CsvField(optional = true)
+    private String noServiceMarker = "Extended";
+
     @Override
     public void run(TransformContext context, GtfsMutableRelationalDao dao) {
         //load maps & hastus reader
@@ -130,7 +133,10 @@ public class LLRGeneration implements GtfsTransformStrategy {
         this.gtfsRouteIdInput = gtfsRouteIdInput;
     }
 
-//    reading methods
+    public void setNoServiceMarker(String noServiceMarker) {
+        this.noServiceMarker = noServiceMarker;
+    }
+    //    reading methods
 
     public List<Trip> readHastusFiles(String files,
                                       GtfsMutableRelationalDao dao, String agency, Map<String,Stop> stopMappings){
@@ -144,6 +150,7 @@ public class LLRGeneration implements GtfsTransformStrategy {
     public List<Trip> readHastusFile(String file,
                                      GtfsMutableRelationalDao dao, String agency, Map<String,Stop> stopMappings){
         HastusListener listener = new HastusListener();
+        listener.setNoServiceMarker(noServiceMarker);
         listener.setNumericalStopMappings(stopMappings);
         listener.setGtfsRouteId(gtfsRouteIdInput);
         read(file, listener, dao, agency);
@@ -193,6 +200,7 @@ public class LLRGeneration implements GtfsTransformStrategy {
         Map<String,Stop> numericalStopMappings;
         Map<String,List<Stop>> nameStopMappings = new HashMap<>();
         String gtfsRouteId;
+        private String noServiceMarker = "Extended";
 
         @Override
         public void setDao(GtfsMutableRelationalDao dao){
@@ -213,6 +221,9 @@ public class LLRGeneration implements GtfsTransformStrategy {
         }
         public void setGtfsRouteId(String routeId){
             this.gtfsRouteId = routeId;
+        }
+        public void setNoServiceMarker(String noServiceMarker){
+            this.noServiceMarker = noServiceMarker;
         }
 
         @Override
@@ -261,18 +272,20 @@ public class LLRGeneration implements GtfsTransformStrategy {
                 calendar.setServiceId(data.serviceId);
                 calendar.setStartDate(getStartDate(dao,data));
                 calendar.setEndDate(getEndDate(dao,data));
-                if(data.serviceId.getId().contains("Weekday")) {
-                    calendar.setMonday(1);
-                    calendar.setTuesday(1);
-                    calendar.setWednesday(1);
-                    calendar.setThursday(1);
-                    calendar.setFriday(1);
-                }
-                if(data.serviceId.getId().contains("Saturday")) {
-                    calendar.setSaturday(1);
-                }
-                if(data.serviceId.getId().contains("Sunday")) {
-                    calendar.setSunday(1);
+                if(!data.serviceId.getId().contains(noServiceMarker)){
+                    if (data.serviceId.getId().contains("Weekday")) {
+                        calendar.setMonday(1);
+                        calendar.setTuesday(1);
+                        calendar.setWednesday(1);
+                        calendar.setThursday(1);
+                        calendar.setFriday(1);
+                    }
+                    if (data.serviceId.getId().contains("Saturday")) {
+                        calendar.setSaturday(1);
+                    }
+                    if (data.serviceId.getId().contains("Sunday")) {
+                        calendar.setSunday(1);
+                    }
                 }
 
                 calendar.setServiceId(data.serviceId);

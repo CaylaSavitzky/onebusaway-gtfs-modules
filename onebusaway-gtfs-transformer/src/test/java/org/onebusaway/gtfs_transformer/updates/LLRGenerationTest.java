@@ -128,7 +128,7 @@ public class LLRGenerationTest extends AbstractTestSupport {
     @Test
     public void testReadHastusB() throws IOException {
         String stopToStopPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/stop_to_stop_mapping.csv";
-        String hastusPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/misordered_hastus_sample_A.ssv";
+        String hastusPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/misordered_hastus_sample_B.ssv";
         LLRGeneration _strategy = new LLRGeneration();
         mockGtfsSetup();
         String agency = "40";
@@ -136,16 +136,18 @@ public class LLRGenerationTest extends AbstractTestSupport {
 
         HashMap<String, Stop> stopMap = _strategy.readStops(stopToStopPath,dao,agency);
         List<Trip> trips = _strategy.readHastusFiles(hastusPath,dao,agency,stopMap);
-        assertEquals(6,trips.size());
+        assertEquals(9,trips.size());
         Collection<StopTime> stopTimes = dao.getAllStopTimes();
-        assertEquals(18,stopTimes.size());
+        assertEquals(19,stopTimes.size());
         Collection<Block> blocks = dao.getAllBlocks();
-        assertEquals(2,blocks.size());
+        assertEquals(3,blocks.size());
         Block block = blocks.iterator().next();
         List<Trip> tripsForBlock = dao.getTripsForBlockId(new AgencyAndId(agency,Integer.toString(block.getId())));
-        assertEquals(3,tripsForBlock.size());
+        assertEquals(4,tripsForBlock.size());
         String s = tripsForBlock.get(1).getId().toString();
-        assertEquals(agency+"_LLRWeekdayDecReduced1008",tripsForBlock.get(1).getId().toString());
+        assertEquals(agency+"_LLRWeekdayDecReduced1010",tripsForBlock.get(1).getId().toString());
+        assertEquals(1,dao.getCalendarForServiceId(new AgencyAndId(agency,"LLRWeekdayDecReduced")).getThursday());
+        assertEquals(0,dao.getCalendarForServiceId(new AgencyAndId(agency,"LLRWeekdayDecExtended")).getThursday());
     }
 
 
