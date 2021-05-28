@@ -45,4 +45,8 @@ public class StopOrderPattern {
                 toArray(new AgencyAndId[stopTimes.size()]);
         return new StopOrderPattern(stopIds);
     }
+
+    public AgencyAndId[] getStopIds(){
+        return _stopIds;
+    }
 }

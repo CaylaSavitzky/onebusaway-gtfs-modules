@@ -82,6 +82,7 @@ public class LLRGeneration implements GtfsTransformStrategy {
 
     public void fixStopSeqHeadsignShapeBlockSeq(GtfsMutableRelationalDao dao, List<Trip> trips,
                                                 HashMap<StopOrderPattern,AgencyAndId> stopOrderShapesMap){
+        Set<StopOrderPattern> unmatchedStopOrders = new HashSet<>();
         for(Trip trip : trips) {
             List<StopTime> stopTimes = new ArrayList<>();
             stopTimes.addAll(dao.getStopTimesForTrip(trip));
@@ -96,14 +97,17 @@ public class LLRGeneration implements GtfsTransformStrategy {
             }
             AgencyAndId shapeId = stopOrderShapesMap.get(StopOrderPattern.getPatternForStopTimes(stopTimes));
             if(shapeId==null){
-                int a = 3;
-            }
-            else{
-                int a = 5;
+                unmatchedStopOrders.add(StopOrderPattern.getPatternForStopTimes(stopTimes));
             }
             trip.setShapeId(shapeId);
-            trip.setTripHeadsign(stopTimes.get(stopTimes.size()-1).getStop().getName());
+            trip.setTripHeadsign(stopTimes.get(stopTimes.size()-1).getStop().getName().replace(" Station",""));
         }
+        _log.info("logging unmatched stop patterns");
+        unmatchedStopOrders.stream().forEach((idList) -> {
+            _log.error(Arrays.stream(idList.getStopIds()).map(id->id.toString()).
+                    reduce("",(a,b)->{return a+" " +b;}));
+        });
+        _log.info("unmatched stop patterns logged.");
     }
 
 
@@ -135,14 +139,30 @@ public class LLRGeneration implements GtfsTransformStrategy {
     //    reading methods
 
     public List<Trip> readHastusFiles(String files,
-                                      GtfsMutableRelationalDao dao, String agency, Map<String,Stop> stopMappings){
+                                      GtfsMutableRelationalDao dao, String agency, Map<String,Stop> stopMappings) {
         List<Trip> trips = new ArrayList<Trip>();
-        for (String file: files.split(";")) {
+        for (String fileInfoWhole: files.split(";")) {
+            String[] fileInfo = fileInfoWhole.split(",");
             HastusListener listener = new HastusListener();
             listener.setNoServiceMarker(noServiceMarker);
             listener.setNumericalStopMappings(stopMappings);
             listener.setGtfsRouteId(gtfsRouteIdInput);
-            read(file, listener, dao, agency);
+            String fileAddress = "";
+            String fileId = fileAddress.split("/")[(fileAddress.split("/")).length-1];
+            if(fileInfo.length==3) {
+                listener.setStartDate(fileInfo[0]);
+                listener.setEndDate(fileInfo[1]);
+                fileAddress = fileInfo[2];
+                fileId = fileInfo[0]+"-"+fileInfo[1];
+            }else if(fileInfo.length==1){
+                fileAddress = fileInfo[0];
+
+            }else {
+                _log.error("Expected Hastus filename format is '[yyyy/mm/dd],[yyyy/mm/dd],[fileName]' or [filename]." +
+                        fileInfoWhole + "does not meet this expectation");
+            }
+            listener.setFileId(fileId);
+            read(fileAddress, listener, dao, agency);
             listener.getTrips().stream().forEach(x->trips.add(x));
         }
         return trips;

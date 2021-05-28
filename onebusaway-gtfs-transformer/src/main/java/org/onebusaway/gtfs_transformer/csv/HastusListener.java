@@ -18,7 +18,31 @@ public class HastusListener extends DaoInterfacingListener {
     Map<String, Stop> numericalStopMappings;
     Map<String, List<Stop>> nameStopMappings = new HashMap<>();
     String gtfsRouteId;
+    ServiceDate endDate;
+    ServiceDate startDate;
+    String fileId;
     private String noServiceMarker = "Extended";
+    private static String SOUTH = "1";
+    private static String NORTH = "0";
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
+    }
+
+    public void setEndDate(String date){
+        endDate = getServiceDate(date);
+    }
+
+    public void setStartDate(String date){
+        startDate = getServiceDate(date);
+    }
+
+    private ServiceDate getServiceDate(String date){
+        String[] dateParts = date.split("/");
+        return new ServiceDate(Integer.parseInt(dateParts[0]),
+                Integer.parseInt(dateParts[1]),
+                Integer.parseInt(dateParts[2]));
+    }
 
     @Override
     public void setDao(GtfsMutableRelationalDao dao){
@@ -88,8 +112,8 @@ public class HastusListener extends DaoInterfacingListener {
         if (calendar == null) {
             calendar = new ServiceCalendar();
             calendar.setServiceId(data.serviceId);
-            calendar.setStartDate(getStartDate(dao,data));
-            calendar.setEndDate(getEndDate(dao,data));
+            calendar.setStartDate(startDate);
+            calendar.setEndDate(endDate);
             if(!data.serviceId.getId().contains(noServiceMarker)){
                 if (data.serviceId.getId().contains("Weekday")) {
                     calendar.setMonday(1);
@@ -110,14 +134,6 @@ public class HastusListener extends DaoInterfacingListener {
             dao.saveEntity(calendar);
             UpdateLibrary.clearDaoCache(dao);
         }
-    }
-
-    ServiceDate getStartDate (GtfsMutableRelationalDao dao, HastusData data){
-        return new ServiceDate(2021,04,21);
-    }
-
-    ServiceDate getEndDate (GtfsMutableRelationalDao dao, HastusData data){
-        return new ServiceDate(2021,11,21);
     }
 
     void createBlockId(GtfsMutableRelationalDao dao, HastusData data){
@@ -148,14 +164,23 @@ public class HastusListener extends DaoInterfacingListener {
                 _log.info("This stop didn't have a match in stop_to_stop_csv: " + data.hastusStop +
                         " so we're skipping this stoptime " + stopTime.toString());
                 return;}
-            stopTime.setStop(stopsForName.get(0));
+            String stopCodeIdentifier;
+            if(data.dir==SOUTH){
+                stopCodeIdentifier = "-T1";
+            } else{
+                stopCodeIdentifier = "-T2";
+            }
+
+            stopTime.setStop(stopsForName.stream().
+                    filter(x->x.getCode().contains(stopCodeIdentifier)).
+                    collect(Collectors.toList()).get(0));
         }
 
         dao.saveEntity(stopTime);
     }
 
     class HastusData{
-        String tripShortName = "Local";
+        String tripShortName = "";
         AgencyAndId serviceId;
         String route;
         String tripName;
@@ -175,7 +200,7 @@ public class HastusListener extends DaoInterfacingListener {
             if(list.size()<7 | list.get(1)==null | list.get(1).equals("")){
                 return;
             }
-            serviceId = new AgencyAndId(agency,"LLR"+list.get(0));
+            serviceId = new AgencyAndId(agency,"LLR_"+fileId+"_"+list.get(0));
             route = list.get(1).trim();
             route=route.substring(1);
             runNumber = Integer.valueOf(list.get(3).replace("599 -","").trim());
@@ -187,7 +212,7 @@ public class HastusListener extends DaoInterfacingListener {
                 hastusStop="Tukwila Int'l Blvd Station";
             dir = resolveDirection(list.get(6));
             blockId = getBlockId();
-            tripId = new AgencyAndId(agency,serviceId.getId()+tripName);
+            tripId = new AgencyAndId(agency, serviceId.getId()+"_"+tripName);
             gtfsRouteAgencyAndId = new AgencyAndId(agency,gtfsRouteId);
 
         }
@@ -196,8 +221,8 @@ public class HastusListener extends DaoInterfacingListener {
             return Arrays.stream(s.split(";")).map(x->x.trim()).collect(Collectors.toList());
         }
         String resolveDirection(String s) throws IOException {
-            if(s.equals("North")) return "1";
-            if(s.equals("South")) return "0";
+            if(s.equals("North")) return NORTH;
+            if(s.equals("South")) return SOUTH;
             _log.error("I was fed the following Hastus direction and didn't like it: "+ s);
             return null;
         }
