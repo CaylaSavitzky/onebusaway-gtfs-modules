@@ -22,8 +22,8 @@ public class HastusListener extends DaoInterfacingListener {
     ServiceDate startDate;
     String fileId;
     private String noServiceMarker = "Extended";
-    private static String SOUTH = "1";
-    private static String NORTH = "0";
+    private static String SOUTH = "0";
+    private static String NORTH = "1";
 
     public void setFileId(String fileId) {
         this.fileId = fileId;
@@ -38,7 +38,7 @@ public class HastusListener extends DaoInterfacingListener {
     }
 
     private ServiceDate getServiceDate(String date){
-        String[] dateParts = date.split("/");
+        String[] dateParts = date.split("-");
         return new ServiceDate(Integer.parseInt(dateParts[0]),
                 Integer.parseInt(dateParts[1]),
                 Integer.parseInt(dateParts[2]));
@@ -227,7 +227,7 @@ public class HastusListener extends DaoInterfacingListener {
             return null;
         }
         int getBlockId(){
-            return serviceId.hashCode()*31+runNumber;
+            return Math.abs(serviceId.hashCode()*31+runNumber);
         }
     }
 }
