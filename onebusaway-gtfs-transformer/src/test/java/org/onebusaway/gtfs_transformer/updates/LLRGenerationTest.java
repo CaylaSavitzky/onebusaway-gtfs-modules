@@ -56,7 +56,8 @@ public class LLRGenerationTest extends AbstractTestSupport {
 
     @Test
     public void testReadStops() throws IOException {
-        String filePath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/stop_to_stop_mapping.csv";
+        String filePath = this.getClass().getResource(
+                "stop_to_stop_mapping.csv").getPath();
         LLRGeneration _strategy = new LLRGeneration();
         mockGtfsSetup();
 
@@ -74,7 +75,8 @@ public class LLRGenerationTest extends AbstractTestSupport {
 
     @Test
     public void testReadStopSeqToShapes() throws IOException {
-        String filePath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/stoptimes_to_shape.csv";
+        String filePath = this.getClass().getResource(
+                "stoptimes_to_shape.csv").getPath();
         LLRGeneration _strategy = new LLRGeneration();
         mockGtfsSetup();
 
@@ -102,8 +104,10 @@ public class LLRGenerationTest extends AbstractTestSupport {
 
     @Test
     public void testReadHastusA() throws IOException {
-        String stopToStopPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/stop_to_stop_mapping.csv";
-        String hastusPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/misordered_hastus_sample_A.ssv";
+        String stopToStopPath = this.getClass().getResource(
+                "stop_to_stop_mapping.csv").getPath();
+        String hastusPath = this.getClass().getResource(
+                "misordered_hastus_sample_A.ssv").getPath();
         LLRGeneration _strategy = new LLRGeneration();
         mockGtfsSetup();
         String agency = "40";
@@ -126,8 +130,10 @@ public class LLRGenerationTest extends AbstractTestSupport {
 
     @Test
     public void testReadHastusB() throws IOException {
-        String stopToStopPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/stop_to_stop_mapping.csv";
-        String hastusPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/misordered_hastus_sample_B.ssv";
+        String stopToStopPath = this.getClass().getResource(
+                "stop_to_stop_mapping.csv").getPath();
+        String hastusPath = this.getClass().getResource(
+                "misordered_hastus_sample_B.ssv").getPath();
         LLRGeneration _strategy = new LLRGeneration();
         mockGtfsSetup();
         String agency = "40";
@@ -152,9 +158,12 @@ public class LLRGenerationTest extends AbstractTestSupport {
 
     @Test
     public void testFixStopSeqHeadsignShapeBlockSeq() throws IOException {
-        String stopToStopPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/stop_to_stop_mapping.csv";
-        String stopOrderShapesPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/stoptimes_to_shape.csv";
-        String hastusPath = "/Users/caylasavitzky/src/onebusaway-gtfs-modules/onebusaway-gtfs-transformer/src/test/resources/org.onebusaway/gtfs_transformer/updates/misordered_hastus_sample_A.ssv";
+        String stopToStopPath = this.getClass().getResource(
+                "stop_to_stop_mapping.csv").getPath();
+        String stopOrderShapesPath = this.getClass().getResource(
+                "stoptimes_to_shape.csv").getPath();
+        String hastusPath = this.getClass().getResource(
+                "misordered_hastus_sample_A.ssv").getPath();
         LLRGeneration _strategy = new LLRGeneration();
         mockGtfsSetup();
         String agency = "40";
