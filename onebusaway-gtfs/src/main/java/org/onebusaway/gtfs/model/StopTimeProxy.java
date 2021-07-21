@@ -29,6 +29,14 @@ public interface StopTimeProxy {
 
   public Trip getTrip();
 
+  public Area getStartServiceArea();
+
+  public void setStartServiceArea(Area area);
+
+  public Area getEndServiceArea();
+
+  public void setEndServiceArea(Area area);
+
   public void setTrip(Trip trip);
 
   public int getStopSequence();
@@ -94,4 +102,20 @@ public interface StopTimeProxy {
   public BookingRule getDropOffBookingRule();
 
   public void setDropOffBookingRule(BookingRule dropOffBookingRule);
+
+  public int getMeanDurationFactor();
+	
+  public void setMeanDurationFactor(int meanDurationFactor);	
+	
+  public int getMeanDurationOffset();
+	
+  public void setMeanDurationOffset(int meanDurationOffset);
+	
+  public int getSafeDurationFactor();
+	
+  public void setSafeDurationFactor(int safeDurationFactor);
+
+  public int getSafeDurationOffset();
+	
+  public void setSafeDurationOffset(int safeDurationOffset);
 }
