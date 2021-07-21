@@ -124,7 +124,7 @@ public class LLRGenerationTest extends AbstractTestSupport {
         List<Trip> tripsForBlock = dao.getTripsForBlockId(new AgencyAndId(agency,Integer.toString(block.getId())));
         assertEquals(3,tripsForBlock.size());
         String s = tripsForBlock.get(1).getId().toString();
-        assertEquals(agency+"_LLRWeekdayDecReduced1008",tripsForBlock.get(1).getId().toString());
+        assertEquals(agency+"_LLR__WeekdayDecReduced_1008",tripsForBlock.get(1).getId().toString());
     }
 
 
