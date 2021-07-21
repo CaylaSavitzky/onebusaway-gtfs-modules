@@ -150,9 +150,9 @@ public class LLRGenerationTest extends AbstractTestSupport {
         List<Trip> tripsForBlock = dao.getTripsForBlockId(new AgencyAndId(agency,Integer.toString(block.getId())));
         assertEquals(4,tripsForBlock.size());
         String s = tripsForBlock.get(1).getId().toString();
-        assertEquals(agency+"_LLRWeekdayDecReduced1010",tripsForBlock.get(1).getId().toString());
-        assertEquals(1,dao.getCalendarForServiceId(new AgencyAndId(agency,"LLRWeekdayDecReduced")).getThursday());
-        assertEquals(0,dao.getCalendarForServiceId(new AgencyAndId(agency,"LLRWeekdayDecExtended")).getThursday());
+        assertEquals(agency+"_LLR__WeekdayDecReduced_1008",tripsForBlock.get(1).getId().toString());
+        assertEquals(1,dao.getCalendarForServiceId(new AgencyAndId(agency,"LLR__WeekdayDecReduced")).getThursday());
+        assertEquals(0,dao.getCalendarForServiceId(new AgencyAndId(agency,"LLR__WeekdayDecExtended")).getThursday());
     }
 
 
@@ -181,9 +181,9 @@ public class LLRGenerationTest extends AbstractTestSupport {
                 "40,Sound Transit,http://www.soundtransit.org/,America/Los_Angeles,EN,1-888-889-6368,http://www.soundtransit.org/Fares-and-Passes.xml");
         _gtfs.putLines("stops.txt",
                 "stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station,stop_timezone",
-                "99903,,Seatac/Airport Stn Rail & Intl Blvd S/S 176 St,,47.4450531,-122.296692,80,,0,,America/Los_Angeles",
-                "99121,,Beacon Hill Stn Tun & Beacon Av S/S Lander St,,47.5791245,-122.311279,74,,0,,America/Los_Angeles",
-                "99604,,UW / Husky Stadium Link Station,,47.649704,-122.303955,81,,0,,America/Los_Angeles");
+                "99903,-T2,Seatac/Airport Stn Rail & Intl Blvd S/S 176 St,,47.4450531,-122.296692,80,,0,,America/Los_Angeles",
+                "99121,-T2,Beacon Hill Stn Tun & Beacon Av S/S Lander St,,47.5791245,-122.311279,74,,0,,America/Los_Angeles",
+                "99604,-T2,UW / Husky Stadium Link Station,,47.649704,-122.303955,81,,0,,America/Los_Angeles");
         _gtfs.putLines("routes.txt",
                 "route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_color",
                 "100479,40,Link light rail,,Univ. of Washington - SeaTac/Airport - Angle Lake,0,http://www.soundtransit.org/Schedules/ST-Express-Bus/599,,");
