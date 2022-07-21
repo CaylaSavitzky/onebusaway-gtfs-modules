@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class HastusListener extends DaoInterfacingListener {
     private static Logger _log = LoggerFactory.getLogger(HastusListener.class);
@@ -24,6 +25,8 @@ public class HastusListener extends DaoInterfacingListener {
     private String noServiceMarker = "Extended";
     private static String SOUTH = "0";
     private static String NORTH = "1";
+
+    Set<String> stopsWithInvertedNorthSouth = Stream.of("Northgate Station","Roosevelt Station","U District Station").collect(Collectors.toSet());
 
     public void setFileId(String fileId) {
         this.fileId = fileId;
@@ -165,9 +168,14 @@ public class HastusListener extends DaoInterfacingListener {
                         " so we're skipping this stoptime " + stopTime.toString());
                 return;}
             String stopCodeIdentifier;
-            if(data.dir==SOUTH){
+            if(stopsWithInvertedNorthSouth.contains(hastusStop)) {
+                int tmp = (Integer.valueOf(data.dir)+1);
+                tmp = tmp %2;
+                data.dir = String.valueOf((Integer.valueOf(data.dir) + 1) % 2);
+            }
+            if(data.dir.equals(SOUTH)){
                 stopCodeIdentifier = "-T1";
-            } else{
+            } else {
                 stopCodeIdentifier = "-T2";
             }
 
