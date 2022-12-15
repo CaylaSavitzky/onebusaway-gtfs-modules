@@ -26,7 +26,7 @@ public class HastusListener extends DaoInterfacingListener {
     private static String SOUTH = "0";
     private static String NORTH = "1";
 
-    Set<String> stopsWithInvertedNorthSouth = Stream.of("Northgate Station","Roosevelt Station","U District Station").collect(Collectors.toSet());
+    Set<String> stopsWithInvertedNorthSouth = Stream.of("").collect(Collectors.toSet());
 
     public void setFileId(String fileId) {
         this.fileId = fileId;
