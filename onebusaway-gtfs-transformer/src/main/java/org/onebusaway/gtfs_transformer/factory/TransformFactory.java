@@ -170,6 +170,8 @@ public class TransformFactory {
           handleStopTimesOperation(line, json);
         } else if (opType.equals("calendar_extension")) {
           handleTransformOperation(line, json, new CalendarExtensionStrategy());
+        }else if (opType.equals("thirty_day_calendar_extension")) {
+          handleTransformOperation(line, json, new ThirtyDayCalendarExtensionStrategy());
         } else if (opType.equals("calendar_simplification")) {
           handleTransformOperation(line, json, new CalendarSimplicationStrategy());
         } else if (opType.equals("deduplicate_service_ids")) {
@@ -195,6 +197,9 @@ public class TransformFactory {
         }
         else if (opType.equals("update_trip_headsign_if_null")) {
           handleTransformOperation(line, json, new UpdateTripHeadsignIfNull());
+        }
+        else if (opType.equals("update_trip_headsign_railroad_convention")) {
+              handleTransformOperation(line, json, new UpdateTripHeadsignRailRoadConvention());
         }
         else if (opType.equals("merge_stop_names_from_reference")) {
           handleTransformOperation(line, json, new MergeStopNamesFromReferenceStrategy());
@@ -270,12 +275,27 @@ public class TransformFactory {
         }
         else if (opType.equals("check_for_future_service")){
           handleTransformOperation(line, json, new CheckForFutureService());
+        }else if (opType.equals("remove_unused_routes")) {
+          handleTransformOperation(line, json, new RemoveUnusedRoutes());
+        } else if (opType.equals("remove_old_calendar_statements")) {
+          handleTransformOperation(line, json, new RemoveOldCalendarStatements());
+        } else if (opType.equals("truncate_calendar_statements")) {
+          handleTransformOperation(line, json, new TruncateNewCalendarStatements());
         }
         else if (opType.equals("check_for_plausible_stop_times")){
           handleTransformOperation(line,json, new CheckForPlausibleStopTimes());
         }
         else if (opType.equals("check_for_stop_times_without_stops")){
           handleTransformOperation(line,json, new CheckForPlausibleStopTimes());
+        }
+        else if (opType.equals("check_for_lengthy_route_names")){
+          handleTransformOperation(line,json, new CheckForLengthyRouteNames());
+        }
+        else if (opType.equals("ensure_direction_id_exists")){
+          handleTransformOperation(line,json, new EnsureDirectionIdExists());
+        }
+        else if (opType.equals("ensure_route_long_name_exists")){
+          handleTransformOperation(line,json, new EnsureRouteLongNameExists());
         }
         else if (opType.equals("anomaly_check_future_trip_counts")){
           handleTransformOperation(line,json, new AnomalyCheckFutureTripCounts());

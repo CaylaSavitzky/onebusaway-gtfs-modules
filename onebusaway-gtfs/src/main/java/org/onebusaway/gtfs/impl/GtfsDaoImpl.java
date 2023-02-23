@@ -16,8 +16,7 @@
 package org.onebusaway.gtfs.impl;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 import org.onebusaway.gtfs.model.*;
 import org.onebusaway.gtfs.services.GenericMutableDao;
@@ -33,6 +32,10 @@ public class GtfsDaoImpl extends GenericDaoImpl implements GtfsMutableDao {
   private boolean packStopTimes = false;
 
   private boolean packShapePoints = false;
+
+  private String[] _optionalMetadataFilenames = {"modifications.txt"};
+
+  private Map<String, String> metadataByFilename = new HashMap<>();
 
   public boolean isPackStopTimes() {
     return packStopTimes;
@@ -147,8 +150,38 @@ public class GtfsDaoImpl extends GenericDaoImpl implements GtfsMutableDao {
     return getEntityForId(FareAttribute.class, id);
   }
 
+  @Override
+  public Collection<FareLegRule> getAllFareLegRules() {
+    return getAllEntitiesForType(FareLegRule.class);
+  }
+
+  @Override
+  public Collection<FareProduct> getAllFareProducts() {
+    return getAllEntitiesForType(FareProduct.class);
+  }
+
+  @Override
+  public FareProduct getFareProductForId(AgencyAndId id) {
+    return getEntityForId(FareProduct.class, id);
+  }
+
+  @Override
+  public Collection<FareContainer> getAllFareContainers() {
+    return getAllEntitiesForType(FareContainer.class);
+  }
+
+  @Override
+  public Collection<RiderCategory> getAllRiderCategories() {
+    return getAllEntitiesForType(RiderCategory.class);
+  }
+
   public FareRule getFareRuleForId(int id) {
     return getEntityForId(FareRule.class, id);
+  }
+
+  @Override
+  public Collection<FareTransferRule> getAllFareTransferRules() {
+    return getAllEntitiesForType(FareTransferRule.class);
   }
 
   @Override
@@ -202,6 +235,30 @@ public class GtfsDaoImpl extends GenericDaoImpl implements GtfsMutableDao {
     return getEntityForId(Level.class, id);
   }
 
+
+
+  public Facility getFacilityForId(AgencyAndId id) { return getEntityForId(Facility.class, id);}
+  public FacilityProperty getFacilityPropertiesForId(AgencyAndId id) { return getEntityForId(FacilityProperty.class, id);}
+  public FacilityPropertyDefinition getFacilityPropertiesDefinitionsForId(AgencyAndId id) { return getEntityForId(FacilityPropertyDefinition.class, id);}
+  public RouteNameException getRouteNameExceptionForId(AgencyAndId id) { return getEntityForId(RouteNameException.class, id);}
+  public DirectionNameException getDirectionNameExceptionForId(AgencyAndId id) { return getEntityForId(DirectionNameException.class, id);}
+
+  public Collection<Facility> getAllFacilities() {
+    return getAllEntitiesForType(Facility.class);
+  }
+  public Collection<FacilityProperty> getAllFacilityProperties() {
+    return getAllEntitiesForType(FacilityProperty.class);
+  }
+  public Collection<FacilityPropertyDefinition> getAllFacilityPropertyDefinitions() {
+    return getAllEntitiesForType(FacilityPropertyDefinition.class);
+  }
+  public Collection<RouteNameException> getAllRouteNameExceptions() {
+    return getAllEntitiesForType(RouteNameException.class);
+  }
+  public Collection<DirectionNameException> getAllDirectionNameExceptions() {
+    return getAllEntitiesForType(DirectionNameException.class);
+  }
+
   public Collection<Area> getAllAreas() {
     return getAllEntitiesForType(Area.class);
   }
@@ -224,6 +281,11 @@ public class GtfsDaoImpl extends GenericDaoImpl implements GtfsMutableDao {
 
   public Collection<Translation> getAllTranslations() {
     return getAllEntitiesForType(Translation.class);
+  }
+
+  @Override
+  public Collection<StopArea> getAllStopAreas() {
+    return getAllEntitiesForType(StopArea.class);
   }
 
   /****
@@ -304,6 +366,24 @@ public class GtfsDaoImpl extends GenericDaoImpl implements GtfsMutableDao {
     }
     super.close();
   }
+
+  @Override
+  public List<String> getOptionalMetadataFilenames() {
+    return Arrays.asList(_optionalMetadataFilenames);
+  }
+  @Override
+  public boolean hasMetadata(String filename) {
+    return metadataByFilename.containsKey(filename);
+  }
+  @Override
+  public String getMetadata(String filename) {
+    return metadataByFilename.get(filename);
+  }
+  @Override
+  public void addMetadata(String filename, String content) {
+    metadataByFilename.put(filename, content);
+  }
+
 
   /****
    * Private Methods
